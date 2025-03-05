@@ -104,7 +104,7 @@ Shader "Custom/S2xE"
 
                 float3 col = float3(0,0,0);
                 if (hit) {
-                    float2 uv = (float2(nPos.x, nPos.z)/((1+nPos.y)*2))*_MapScale + float2(0.5, 0.5);
+                    float2 uv = nPos.xz*rsqrt(1+nPos.y)*_MapScale/2 + float2(0.5, 0.5);
                     
                     if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && nPos.y > -0.9) {
                         col = tex2D(_MapColor, uv).rgb;

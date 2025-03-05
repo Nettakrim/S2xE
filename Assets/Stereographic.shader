@@ -4,6 +4,7 @@ Shader "Custom/Stereographic"
     {
         _MapColor("MapColor", 2D) = "white" {}
         _MapScale("MapScale", Float) = 1
+        _MapExponent("MapExponent", Float) = 1
         _MapBackground("MapBackground", Color) = (1,1,1,1)
     }
     SubShader
@@ -33,13 +34,15 @@ Shader "Custom/Stereographic"
 
             sampler2D _MapColor;
             float _MapScale;
+            float _MapExponent;
 
             fixed3 _MapBackground;
+
 
             fixed4 frag (v2f i) : SV_Target
             {
                 float3 pos = i.pos;
-                float2 uv = (float2(pos.x, pos.z)/((1+pos.y)*2))*_MapScale + float2(0.5, 0.5);
+                float2 uv = pos.xz*rsqrt(1+pos.y)*_MapScale/2 + float2(0.5, 0.5);
                    
                 float3 col;
                 if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && pos.y > -0.9) {
