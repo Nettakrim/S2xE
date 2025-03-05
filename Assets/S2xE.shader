@@ -6,6 +6,8 @@ Shader "Custom/S2xE"
         _MapScale("MapScale", Float) = 1
         _MapBackground("MapBackground", Color) = (1,1,1,1)
         _SkyColor("SkyColor", Color) = (0.5,0.5,1,1)
+        _MapHeight("MapHeight", 2D) = "gray" {}
+        _HeightScale("HeightScale", Float) = 1
         _RayMarchSteps("Ray March Steps", Float) = 1
     }
     SubShader
@@ -38,32 +40,9 @@ Shader "Custom/S2xE"
                 return o;
             }
 
-
-            sampler2D _MapColor;
-            float _MapScale;
-
-            fixed3 _MapBackground;
             fixed3 _SkyColor;
 
             int _RayMarchSteps;
-
-            float3x3 RotationAroundAxis(float3 Axis, float Rotation)
-            {
-                float s = sin(Rotation);
-                float c = cos(Rotation);
-                float one_minus_c = 1.0 - c;
-                Axis = normalize(Axis);
-
-                return float3x3(
-                    one_minus_c * Axis.x * Axis.x + c, one_minus_c * Axis.x * Axis.y - Axis.z * s, one_minus_c * Axis.z * Axis.x + Axis.y * s,
-                    one_minus_c * Axis.x * Axis.y + Axis.z * s, one_minus_c * Axis.y * Axis.y + c, one_minus_c * Axis.y * Axis.z - Axis.x * s,
-                    one_minus_c * Axis.z * Axis.x - Axis.y * s, one_minus_c * Axis.y * Axis.z + Axis.x * s, one_minus_c * Axis.z * Axis.z + c
-                );
-            }
-
-            float GetHeightAtPos(float3 nPos) {
-                return 1;
-            }
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -78,9 +57,11 @@ Shader "Custom/S2xE"
                 float sSlope = length(i.viewDir - nPos*eSlope);
 
                 bool hit = false;
+                [loop]
                 for (int i = 0; i < _RayMarchSteps; i++) {
                     //do proper SDF - generate a texture from the height map? thats like "rounded out" is this possible?
-                    float maxStep = (height-1) / -eSlope;
+                    //float maxStep = (height-1) / -eSlope;
+                    float maxStep = 0.01;
 
                     if (maxStep < 0) {
                         break;
@@ -90,21 +71,15 @@ Shader "Custom/S2xE"
 
                     height = length(pos);
                     nPos = pos/height;
-                    if (height <= GetHeightAtPos(pos)) {
+                    if (height <= GetHeightAtPos(nPos)) {
                         hit = true;
                         break;
                     }
                 }
 
-                float3 col = float3(0,0,0);
+                float3 col;
                 if (hit) {
-                    float2 uv = GetUV(nPos, _MapScale);
-
-                    if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && nPos.y > -0.9) {
-                        col = tex2D(_MapColor, uv).rgb;
-                    } else {
-                        col = _MapBackground;
-                    }
+                    col = GetTextureAtPos(nPos);
                 } else {
                     col = _SkyColor;
                 }

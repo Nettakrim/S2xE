@@ -5,6 +5,8 @@ Shader "Custom/Stereographic"
         _MapColor("MapColor", 2D) = "white" {}
         _MapScale("MapScale", Float) = 1
         _MapBackground("MapBackground", Color) = (1,1,1,1)
+        _MapHeight("MapHeight", 2D) = "gray" {}
+        _HeightScale("HeightScale", Float) = 1
     }
     SubShader
     {
@@ -13,6 +15,7 @@ Shader "Custom/Stereographic"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 3.0
 
             #include "UnityCG.cginc"
             #include "Assets/Projection.cginc"
@@ -26,29 +29,14 @@ Shader "Custom/Stereographic"
             v2f vert (appdata_base v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
                 o.pos = v.normal;
+                o.vertex = UnityObjectToClipPos(v.vertex * GetHeightAtPos(v.vertex));
                 return o;
             }
 
-
-            sampler2D _MapColor;
-            float _MapScale;
-
-            fixed3 _MapBackground;
-
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = GetUV(i.pos, _MapScale);
-                   
-                float3 col;
-                if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && i.pos.y > -0.9) {
-                    col = tex2D(_MapColor, uv).rgb;
-                } else {
-                    col = _MapBackground;
-                };
-
-                return fixed4(col.r, col.g, col.b, 1);
+                return fixed4(GetTextureAtPos(i.pos), 1);
             }
             ENDCG
         }
