@@ -81,8 +81,7 @@ Shader "Custom/S2xE"
                 float3 nPos = pos/height;
 
                 float eSlope = dot(nPos, i.viewDir);
-                //is this correct?
-                float sSlope = dot(axis, i.viewDir) + dot(cross(axis,nPos), i.viewDir);
+                float sSlope = length(i.viewDir - nPos*eSlope);
 
                 bool hit = false;
                 for (int i = 0; i < _RayMarchSteps; i++) {
