@@ -29,9 +29,7 @@ inline float GetHeightFromMapValue(float value) {
     return exp(c * _HeightScale);
 }
 
-float3 GetTextureAtPos(float3 nPos) {
-    float2 uv = GetUV(nPos);
-
+float3 GetTextureAtPos(float3 nPos, float2 uv) {
     if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && nPos.y > -0.9) {
         return tex2D(_MapColor, uv).rgb;
     } else {
@@ -39,11 +37,9 @@ float3 GetTextureAtPos(float3 nPos) {
     }
 }
 
-float GetHeightAtPos(float3 nPos) {
-    float2 uv = GetUV(nPos);
-
+float GetHeightAtPos(float3 nPos, float2 uv, float mip) {
     if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && nPos.y > -0.9) {
-        return GetHeightFromMapValue(tex2Dlod(_MapHeight, float4(uv,0,0)).r);
+        return GetHeightFromMapValue(tex2Dlod(_MapHeight, float4(uv, 0, mip)).r);
     } else {
         return 1;
     }

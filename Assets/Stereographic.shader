@@ -30,13 +30,13 @@ Shader "Custom/Stereographic"
             {
                 v2f o;
                 o.pos = v.normal;
-                o.vertex = UnityObjectToClipPos(v.vertex * GetHeightAtPos(v.vertex));
+                o.vertex = UnityObjectToClipPos(v.vertex * GetHeightAtPos(v.vertex, GetUV(v.vertex), 0));
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return fixed4(GetTextureAtPos(i.pos), 1);
+                return fixed4(GetTextureAtPos(i.pos, GetUV(i.pos)), 1);
             }
             ENDCG
         }

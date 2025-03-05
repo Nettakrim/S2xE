@@ -9,6 +9,7 @@ Shader "Custom/S2xE"
         _MapHeight("MapHeight", 2D) = "gray" {}
         _HeightScale("HeightScale", Float) = 1
         _RayMarchSteps("Ray March Steps", Float) = 1
+        _MipLevels("Mip Levels", Float) = 7
     }
     SubShader
     {
@@ -44,6 +45,8 @@ Shader "Custom/S2xE"
 
             int _RayMarchSteps;
 
+            int _MipLevels;
+
             fixed4 frag (v2f i) : SV_Target
             {
 
@@ -59,27 +62,39 @@ Shader "Custom/S2xE"
                 bool hit = false;
                 [loop]
                 for (int i = 0; i < _RayMarchSteps; i++) {
-                    //do proper SDF - generate a texture from the height map? thats like "rounded out" is this possible?
-                    //float maxStep = (height-1) / -eSlope;
-                    float maxStep = 0.01;
+                    float2 uv = GetUV(nPos);
 
-                    if (maxStep < 0) {
+                    int mipHit = _MipLevels+1;
+                    for (int mip = 0; mip <= _MipLevels; mip++) {
+                        if (height <= GetHeightAtPos(nPos, uv, mip)) {
+                            mipHit = mip;
+                            break;
+                        }
+                    }
+                    
+                    if (mipHit == 0) {
+                        hit = true;
                         break;
                     }
+                    
+                    // TODO: go to next mip border
+
+                    //float maxStep = (height-1) / -eSlope;
+                    float maxStep = 0.002*mipHit;
+
+                    //if (maxStep < 0) {
+                    //    break;
+                    //}
 
                     pos = mul(RotationAroundAxis(axis, maxStep * sSlope), pos + (nPos*eSlope*maxStep));
 
                     height = length(pos);
                     nPos = pos/height;
-                    if (height <= GetHeightAtPos(nPos)) {
-                        hit = true;
-                        break;
-                    }
                 }
 
                 float3 col;
                 if (hit) {
-                    col = GetTextureAtPos(nPos);
+                    col = GetTextureAtPos(nPos, GetUV(nPos));
                 } else {
                     col = _SkyColor;
                 }
