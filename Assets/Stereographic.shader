@@ -4,7 +4,6 @@ Shader "Custom/Stereographic"
     {
         _MapColor("MapColor", 2D) = "white" {}
         _MapScale("MapScale", Float) = 1
-        _MapExponent("MapExponent", Float) = 1
         _MapBackground("MapBackground", Color) = (1,1,1,1)
     }
     SubShader
@@ -16,6 +15,7 @@ Shader "Custom/Stereographic"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
+            #include "Assets/Projection.cginc"
 
             struct v2f
             {
@@ -34,18 +34,15 @@ Shader "Custom/Stereographic"
 
             sampler2D _MapColor;
             float _MapScale;
-            float _MapExponent;
 
             fixed3 _MapBackground;
 
-
             fixed4 frag (v2f i) : SV_Target
             {
-                float3 pos = i.pos;
-                float2 uv = pos.xz*rsqrt(1+pos.y)*_MapScale/2 + float2(0.5, 0.5);
+                float2 uv = GetUV(i.pos, _MapScale);
                    
                 float3 col;
-                if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && pos.y > -0.9) {
+                if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && i.pos.y > -0.9) {
                     col = tex2D(_MapColor, uv).rgb;
                 } else {
                     col = _MapBackground;

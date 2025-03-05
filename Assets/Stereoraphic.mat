@@ -102,6 +102,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _MapExponent: 0.5
     - _MapScale: 1
     - _Metallic: 0
     - _OcclusionStrength: 1

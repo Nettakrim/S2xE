@@ -17,6 +17,7 @@ Shader "Custom/S2xE"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
+            #include "Assets/Projection.cginc"
 
             struct appdata
             {
@@ -60,13 +61,6 @@ Shader "Custom/S2xE"
                 );
             }
 
-            inline float3 GetAxis(float3 pos, float3 view) {
-                // get axis that given view ray at position will be rotating around
-                // this is actually just the cross product
-                return cross(pos, view);
-            }
-
-
             float GetHeightAtPos(float3 nPos) {
                 return 1;
             }
@@ -75,7 +69,7 @@ Shader "Custom/S2xE"
             {
 
                 float3 pos = _WorldSpaceCameraPos.xyz;
-                float3 axis = GetAxis(_WorldSpaceCameraPos.xyz, i.viewDir);
+                float3 axis = cross(_WorldSpaceCameraPos.xyz, i.viewDir);
 
                 float height = length(pos);
                 float3 nPos = pos/height;
@@ -104,8 +98,8 @@ Shader "Custom/S2xE"
 
                 float3 col = float3(0,0,0);
                 if (hit) {
-                    float2 uv = nPos.xz*rsqrt(1+nPos.y)*_MapScale/2 + float2(0.5, 0.5);
-                    
+                    float2 uv = GetUV(nPos, _MapScale);
+
                     if (uv.x >= 0 && uv.y >= 0 && uv.x <= 1 && uv.y <= 1 && nPos.y > -0.9) {
                         col = tex2D(_MapColor, uv).rgb;
                     } else {
