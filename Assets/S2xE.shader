@@ -10,6 +10,7 @@ Shader "Custom/S2xE"
         _HeightScale("HeightScale", Float) = 1
         _RayMarchSteps("Ray March Steps", Float) = 1
         _MipLevels("Mip Levels", Float) = 7
+        _SunAngle("Sun Angle", Float) = 0
     }
     SubShader
     {
@@ -47,6 +48,8 @@ Shader "Custom/S2xE"
 
             int _MipLevels;
 
+            float _SunAngle;
+
             fixed4 frag (v2f i) : SV_Target
             {
 
@@ -58,6 +61,8 @@ Shader "Custom/S2xE"
 
                 float eSlope = dot(nPos, i.viewDir);
                 float sSlope = length(i.viewDir - nPos*eSlope);
+
+                float3 sunPos = mul(RotationAroundAxis(float3(1,0,0), _SunAngle), float3(0,1,0));
 
                 bool hit = false;
                 [loop]
@@ -85,6 +90,11 @@ Shader "Custom/S2xE"
                     //if (maxStep < 0) {
                     //    break;
                     //}
+
+                    if (length(pos-sunPos*2) < 0.1) {
+                        return fixed4(1,0.75,0,1);
+                    }
+
 
                     pos = mul(RotationAroundAxis(axis, maxStep * sSlope), pos + (nPos*eSlope*maxStep));
 

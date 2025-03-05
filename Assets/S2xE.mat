@@ -122,7 +122,9 @@ Material:
     - _HeightScale: 0.1
     - _MapScale: 1
     - _MaxLoops: 2
+    - _MaxMip: 7
     - _Metallic: 0
+    - _MipLevels: 7
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -134,6 +136,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _SunAngle: 6.35
     - _Surface: 0
     - _Test: 50
     - _WorkflowMode: 1
